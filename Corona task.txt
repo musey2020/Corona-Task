@@ -1,0 +1,36 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt 
+
+df1=pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+df1_m=df1.melt(id_vars=['Country/Region', 'Province/State','Lat','Long'])
+df1_m.rename(columns={'variable':'Date','Province/State':'State','Country/Region':'Country','value':'confirmed'},inplace=True)
+df1_m.drop(['Lat','Long'],axis=1, inplace=True)
+
+df2=pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
+df2_m=df2.melt(id_vars=['Country/Region', 'Province/State','Lat','Long'])
+df2_m.rename(columns={'variable':'Date_1','Province/State':'State_1','Country/Region':'Country_1','value':'recovered'},inplace=True)
+df2_m.drop(['Lat','Long'],axis=1, inplace=True)
+
+df3=pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+df3_m=df3.melt(id_vars=['Country/Region','Province/State','Lat','Long'])
+df3_m.rename(columns={'variable':'Date_2','Province/State':'State_2','Country/Region':'Country_2','value':'death'},inplace=True)
+df3_m.drop(['Lat','Long'],axis=1, inplace=True)
+
+covid =pd.concat([df1_m,df2_m,df3_m], axis=1)
+
+grouped = covid.groupby(['Country'])
+cc = grouped.sum().reset_index()
+
+death = cc.head(10)
+sns.barplot(x=death['death'],y=death['Country'])
+
+confirmed = cc.head(10)
+fig, ax = plt.subplots(figsize=(15, 8))
+ax.barh(confirmed['Country'], confirmed['confirmed'])
+plt.xlabel('Number of Confirmend Cases')
+plt.ylabel('Country')
+
+recovered = cc.head(10)
+sns.barplot(x=recovered['recovered'],y=recovered['Country'])
